@@ -2,7 +2,11 @@ package com.buttfa.worldtree;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -13,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -26,6 +31,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -137,6 +145,54 @@ public class WorldTree {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        }
+    }
+
+    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static class WorldTreeEvents {
+        @SubscribeEvent
+        public static void onScreenInit(ScreenEvent.Init event) {
+            if (event.getScreen() instanceof PauseScreen pauseScreen) {
+
+                // Find the last button on the pause page and add the 'World Tree' button below
+                // it.
+                List<? extends GuiEventListener> children = pauseScreen.children();
+                for (int i = children.size() - 1; i >= 0; i--) {
+                    GuiEventListener widget = children.get(i);
+                    if (widget instanceof Button lastButton) {
+                        // Add the 'World Tree' button below the last button
+                        event.addListener(Button.builder(
+                                // The text of the button
+                                Component.translatable("World Tree"),
+                                // The action when the button is clicked
+                                button -> {
+                                    // Check if player is null
+                                    if (Minecraft.getInstance().player != null) {
+                                        // Jump to the page of 'World Tree' mod
+                                        Minecraft.getInstance().setScreen(new WorldTreeScreen());
+                                    } else {
+                                        LOGGER.warn("Player is null when the 'World Tree' button was clicked.");
+                                    }
+                                })
+                                .bounds((// X
+                                pauseScreen.width - lastButton.getWidth()) / 2,
+                                        // Y
+                                        lastButton.getY() + lastButton.getHeight() + 5,
+                                        // Width
+                                        lastButton.getWidth(),
+                                        // Height
+                                        20)
+                                .build());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static class WorldTreeScreen extends net.minecraft.client.gui.screens.Screen {
+        protected WorldTreeScreen() {
+            super(Component.literal("World Tree Screen"));
         }
     }
 }
