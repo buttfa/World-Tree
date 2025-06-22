@@ -425,14 +425,14 @@ public class WorldTree {
         }
 
         // Generate node folder name: node name-timestamp
-        node.folderName = node.displayName + "-" + System.currentTimeMillis();
+        node.folderName = node.displayName + "-" + node.timestamp;
         Path targetPath = worldTreeDir.toPath().resolve(node.folderName);
 
         try {
             // Save current world
-            if (Minecraft.getInstance().getSingleplayerServer() != null) {
-                Minecraft.getInstance().getSingleplayerServer().saveAllChunks(true, true, true);
+            while (Minecraft.getInstance().getSingleplayerServer() == null) {
             }
+            Minecraft.getInstance().getSingleplayerServer().saveAllChunks(false, false, false);
 
             // Copy world
             FileUtils.copyDirectory(worldDir.toPath(), targetPath);
@@ -626,9 +626,9 @@ public class WorldTree {
 
         try {
             // Save current world
-            if (mc.getSingleplayerServer() != null) {
-                mc.getSingleplayerServer().saveAllChunks(true, true, true);
+            while (Minecraft.getInstance().getSingleplayerServer() == null) {
             }
+            Minecraft.getInstance().getSingleplayerServer().saveAllChunks(false, false, false);
 
             // Delete current world content
             if (Files.exists(targetDir)) {
