@@ -537,14 +537,16 @@ public class WorldTree {
     public static void removeSave(String saveId) {
         TreeNode node = nodeMap.get(saveId);
         if (node != null && !node.isRoot()) {
-            // Collect all nodes to be deleted (including current node and all non-dummy
-            // children)
+            // 1. Get the parent node of the node to be deleted
+            TreeNode originalParent = node.parent;
+
+            // 2. Collect all nodes to be removed (excluding dummy nodes)
             List<TreeNode> nodesToRemove = collectAllChildrenExcludingDummy(node);
 
-            // Remove current node from parent's children list
+            // 3. Remove the current node from its parent
             node.parent.children.remove(node);
 
-            // Iterate over all nodes to be deleted
+            // 4. Delete the node and its children (excluding dummy nodes)
             for (TreeNode nodeToRemove : nodesToRemove) {
                 // Remove from node map
                 nodeMap.remove(nodeToRemove.id);
@@ -563,6 +565,20 @@ public class WorldTree {
                 }
             }
 
+            // 5. Check if the parent node of the dummy node has been deleted
+            TreeNode dummyNode = nodeMap.get(DUMMY_NODE_ID);
+            if (dummyNode != null) {
+                if (!nodeMap.containsKey(dummyNode.parent.id)) {
+                    // Move the dummy node to the original parent node of the deleted node
+                    if (dummyNode.parent != null) {
+                        dummyNode.parent.children.remove(dummyNode);
+                    }
+                    originalParent.addChild(dummyNode);
+                    LOGGER.info("Moved dummy node to original parent: {}", originalParent.id);
+                }
+            }
+
+            // 6. Save the updated world tree
             saveWorldTree();
         }
     }
