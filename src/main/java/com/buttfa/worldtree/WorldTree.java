@@ -384,7 +384,7 @@ public class WorldTree {
             if (!nodeMap.containsKey(DUMMY_NODE_ID)) {
                 LOGGER.info("Dummy node not found, creating new dummy node as child of root");
                 // Create dummy node with custom name
-                TreeNode dummyNode = new TreeNode(DUMMY_NODE_ID, "+ Add New", Component.literal("+ Add New"));
+                TreeNode dummyNode = new TreeNode(DUMMY_NODE_ID, "+ Current", Component.literal("+ Current"));
                 rootNode.addChild(dummyNode);
                 nodeMap.put(DUMMY_NODE_ID, dummyNode);
             }
@@ -404,7 +404,7 @@ public class WorldTree {
         nodeMap.put("root", rootNode);
 
         // Add dummy node (with custom name)
-        TreeNode dummyNode = new TreeNode(DUMMY_NODE_ID, "+ Add New", Component.literal("+ Add New"));
+        TreeNode dummyNode = new TreeNode(DUMMY_NODE_ID, "+ Current", Component.literal("+ Current"));
         rootNode.addChild(dummyNode);
         nodeMap.put(DUMMY_NODE_ID, dummyNode);
 
